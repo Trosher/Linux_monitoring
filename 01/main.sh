@@ -5,6 +5,12 @@ if [ "$#" -ne 6 ]; then
     exit 1
 fi
 
+avail_size=$(/bin/df -k / | /bin/grep /dev/mapper/ | /bin/awk '{print $4}')
+if [ $avail_size -le 1048576 ]; then
+    echo "Error: Not enough memory"
+    exit 1
+fi
+
 error_target=0
 NUMBER='[^0-9]+'
 ALPHABET='[^a-zA-Z]+'
@@ -119,13 +125,13 @@ else
         error_target=1
     fi
 
-    if [ ${#character_for_expansion_file} -gt 7 ]
+    if [ ${#character_for_expansion_file} -gt 3 ]
     then
         if [[ $error_target == 1 ]];
         then
             echo
         fi
-        echo "ERROR: The number of characters to generate a file expansion should not exceed 7 "
+        echo "ERROR: The number of characters to generate a file expansion should not exceed 3 "
         echo "       Erroneous argument №5: $character_for_file "
         error_target=1
     elif [[ $character_for_expansion_file =~ $ALPHABET ]]
@@ -173,5 +179,30 @@ fi
 
 if [[ $error_target != 1 ]];
 then
-    
+    /bin/touch "logger.log"
+    prev_size=3
+    prev_size_file=3
+    data="_$(/bin/date +"%d%m%y")"
+    for (( i=1; i<=${number_of_subfolders}; i++ )) do
+        avail_size=$(/bin/df -k / | /bin/grep /dev/mapper/ | /bin/awk '{print $4}')
+        if [ $avail_size -le 1048576 ]; then
+            echo "Error: Not enough memory"
+            break
+        fi
+        name_dir="$(./gen.sh $character_for_name_dir $i $prev_size)"
+        prev_size=$((${#name_dir}-1))
+        /bin/mkdir "${path}${name_dir}${data}"
+        echo -e "${path}${name_dir}${data}/\t\t\t\t\t$(/bin/date +"%d.%m.%y")" >> logger.log
+        for (( j=1; j<=${number_of_file}; j++ )) do
+            avail_size=$(/bin/df -k / | /bin/grep /dev/mapper/ | /bin/awk '{print $4}')
+            if [ $avail_size -le 1048576 ]; then
+                echo "Error: Not enough memory"
+                break
+            fi
+            name_file="$(./gen.sh $character_for_file $((j*i)) $prev_size_file)"
+            prev_size_file=$((${#name_file}-1))
+            /bin/fallocate -l ${size} "${path}${name_folder}${data}/${name_file}${data}.${character_for_expansion_file}"
+            echo -e "${path}${name_dir}${data}/${name_file}${data}.${character_for_expansion_file}\t$(/bin/date +"%d.%m.%y") ${size_num_files}" >> logger.log
+        done
+    done
 fi
