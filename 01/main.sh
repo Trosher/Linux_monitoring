@@ -187,18 +187,18 @@ then
             echo "Error: Not enough memory"
             break
         fi
-        name_dir="$(bash gen.sh $character_for_name_dir $i)"
-#        /bin/mkdir "${path}${name_dir}${data}"
-#        echo -e "${path}${name_dir}${data}/\t\t\t\t\t$(/bin/date +"%d.%m.%y")" >> logger.log
+        name_dir="$(/bin/bash gen.sh $character_for_name_dir $i)"
+        /bin/mkdir "${path}${name_dir}${data}"
+        echo -e "${path}${name_dir}${data}/\t\t\t\t\t$(/bin/date +"%d.%m.%y")" >> logger.log
         for (( j=1; j<=${number_of_file}; j++ )) do
             avail_size=$(/bin/df -k / | /bin/grep /dev/mapper/ | /bin/awk '{print $4}')
             if [ $avail_size -le 1048576 ]; then
                 echo "Error: Not enough memory"
                 break
             fi
-            name_file="$(bash gen.sh $character_for_name_file $((j)))"
-#            /bin/fallocate -l ${size} "${path}${name_folder}${data}/${name_file}${data}.${character_for_expansion_file}"
-#            echo -e "${path}${name_dir}${data}/${name_file}${data}.${character_for_expansion_file}\t$(/bin/date +"%d.%m.%y") ${size_num_files}" >> logger.log
+            name_file="$(/bin/bash gen.sh $character_for_name_file $((j)))"
+            /bin/fallocate -l ${size_num_files} "${path}${name_dir}${data}/${name_file}${data}.${character_for_expansion_file}"
+            echo -e "${path}${name_dir}${data}/${name_file}${data}.${character_for_expansion_file}\t$(/bin/date +"%d.%m.%y") ${size_num_files}" >> logger.log
         done
     done
 fi
