@@ -166,22 +166,20 @@ then
     echo "ERROR: The file size should be described by the number and signature kb after. "
     echo "       Erroneous argument №6: $size_file "
     error_target=1
-elif [[ $size_num_files > 100 ]]; 
+elif [ $size_num_files -gt 100 ]; 
 then
     if [[ $error_target == 1 ]];
     then
         echo
     fi
     echo "ERROR: The amount of memory for the file should not exceed 100 kb "
-    echo "       Erroneous argument №6: $size_file "
+    echo "       Erroneous argument №61: $size_file "
     error_target=1
 fi
 
 if [[ $error_target != 1 ]];
 then
     /bin/touch "logger.log"
-    prev_size=3
-    prev_size_file=3
     data="_$(/bin/date +"%d%m%y")"
     for (( i=1; i<=${number_of_subfolders}; i++ )) do
         avail_size=$(/bin/df -k / | /bin/grep /dev/mapper/ | /bin/awk '{print $4}')
@@ -189,20 +187,18 @@ then
             echo "Error: Not enough memory"
             break
         fi
-        name_dir="$(./gen.sh $character_for_name_dir $i $prev_size)"
-        prev_size=$((${#name_dir}-1))
-        /bin/mkdir "${path}${name_dir}${data}"
-        echo -e "${path}${name_dir}${data}/\t\t\t\t\t$(/bin/date +"%d.%m.%y")" >> logger.log
+        name_dir="$(bash gen.sh $character_for_name_dir $i)"
+#        /bin/mkdir "${path}${name_dir}${data}"
+#        echo -e "${path}${name_dir}${data}/\t\t\t\t\t$(/bin/date +"%d.%m.%y")" >> logger.log
         for (( j=1; j<=${number_of_file}; j++ )) do
             avail_size=$(/bin/df -k / | /bin/grep /dev/mapper/ | /bin/awk '{print $4}')
             if [ $avail_size -le 1048576 ]; then
                 echo "Error: Not enough memory"
                 break
             fi
-            name_file="$(./gen.sh $character_for_file $((j*i)) $prev_size_file)"
-            prev_size_file=$((${#name_file}-1))
-            /bin/fallocate -l ${size} "${path}${name_folder}${data}/${name_file}${data}.${character_for_expansion_file}"
-            echo -e "${path}${name_dir}${data}/${name_file}${data}.${character_for_expansion_file}\t$(/bin/date +"%d.%m.%y") ${size_num_files}" >> logger.log
+            name_file="$(bash gen.sh $character_for_name_file $((j)))"
+#            /bin/fallocate -l ${size} "${path}${name_folder}${data}/${name_file}${data}.${character_for_expansion_file}"
+#            echo -e "${path}${name_dir}${data}/${name_file}${data}.${character_for_expansion_file}\t$(/bin/date +"%d.%m.%y") ${size_num_files}" >> logger.log
         done
     done
 fi
