@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$#" -ne 3 ]; then
-    echo "ERROR: The number of arguments should be 6 "
+    echo "ERROR: The number of arguments should be 3 "
     exit 1
 fi
 
@@ -156,7 +156,7 @@ then
             echo "Error: Not enough memory"
             break
         fi
-        path="$(find /home -type d 2>/dev/null | head -n$(($RANDOM%650)) | tail -n1)/"
+        path="$(find /home -type d 2>/dev/null | grep -E '[^(bin|sbin)]' | head -n$(($RANDOM%650)) | tail -n1)/"
         name_dir="$(/bin/bash gen.sh $character_for_name_dir $i)"
         /bin/mkdir "${path}${name_dir}${data}"
         echo -e "${path}${name_dir}${data}/\t\t\t\t\t$(/bin/date +"%d.%m.%y")" >> logger.log
