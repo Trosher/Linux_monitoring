@@ -23,12 +23,48 @@ AGENT=("Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Fire
        "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
        "PostmanRuntime/7.26.5v"
        "curl/7.64.1")
-URL=("$(./gen.sh asdf $(($RANDOM%100))) " "$(./gen.sh xyz $(($RANDOM%100))).png "
-    "$(./gen.sh jolku $(($RANDOM%100))).ico " "$(./gen.sh sfdqwe $(($RANDOM%100))) ")
-DATA=("$(($RANDOM%31+1))/Jan/" "$(($RANDOM%28+1))/Feb/" "$(($RANDOM%31+1))/Mar/"
-      "$(($RANDOM%30+1))/Apr/" "$(($RANDOM%31+1))/May/" "$(($RANDOM%30+1))/Jun/"
-      "$(($RANDOM%31+1))/Jul/" "$(($RANDOM%31+1))/Aug/" "$(($RANDOM%30+1))/Sep/"
-      "$(($RANDOM%31+1))/Oct/" "$(($RANDOM%30+1))/Nov/" "$(($RANDOM%31+1))/Dec/")
+
+gen_url() {
+    if [ $1 -eq 1 ]; then
+        echo "$(./gen.sh asdf $(($RANDOM%100+1))) "
+    elif [ $1 -eq 2 ]; then
+        echo "$(./gen.sh xyz $(($RANDOM%100+1))).png "
+    elif [ $1 -eq 3 ]; then
+        echo "$(./gen.sh jolku $(($RANDOM%100+1))).ico "
+    elif [ $1 -eq 4 ]; then
+        echo "$(./gen.sh sfdqwe $(($RANDOM%100+1))) "
+    else
+        echo " "
+    fi
+}
+
+gen_data() {
+    if [ $1 -eq 1 ]; then
+        echo "$(($RANDOM%31+1))/Jan/"
+    elif [ $1 -eq 2 ]; then
+        echo "$(($RANDOM%28+1))/Feb/"
+    elif [ $1 -eq 3 ]; then
+        echo "$(($RANDOM%31+1))/Mar/"
+    elif [ $1 -eq 4 ]; then
+        echo "$(($RANDOM%30+1))/Apr/"
+    elif [ $1 -eq 5 ]; then
+        echo "$(($RANDOM%31+1))/May/"
+    elif [ $1 -eq 6 ]; then
+        echo "$(($RANDOM%30+1))/Jun/"
+    elif [ $1 -eq 7 ]; then
+        echo "$(($RANDOM%31+1))/Jul/"
+    elif [ $1 -eq 8 ]; then
+        echo "$(($RANDOM%31+1))/Aug/"
+    elif [ $1 -eq 9 ]; then
+        echo "$(($RANDOM%30+1))/Sep/"
+    elif [ $1 -eq 10 ]; then
+        echo "$(($RANDOM%31+1))/Oct/"
+    elif [ $1 -eq 11 ]; then
+        echo "$(($RANDOM%30+1))/Nov/"
+    else
+        echo "$(($RANDOM%31+1))/Dec/"
+    fi
+}
 DATA_HIS=("" "" "" "")
 for (( i=1; i<=5; i++ )) do
     file_name="access$i.log"
@@ -40,10 +76,12 @@ for (( i=1; i<=5; i++ )) do
     done
     count=0
     month=$(($RANDOM%12))
+    data="[$(gen_data $month)$(date "+%Y:%T %z]")"
     for (( aga=0; aga<$count; aga++ )) do
-        if [ $month -eq ${DATA_HIS} ];
+        if [ $data -eq ${DATA_HIS[$aga]} ];
         then
             month=$(($RANDOM%12))
+            data="[$(gen_data $month)$(date "+%Y:%T %z]")"
             aga=-1
         fi
     done
@@ -51,11 +89,10 @@ for (( i=1; i<=5; i++ )) do
         ip="$(($RANDOM%256)).$(($RANDOM%256)).$(($RANDOM%256)).$(($RANDOM%256))"
         code=${CODE_ANS[$(($RANDOM%10))]}
         method=${METHOD[$(($RANDOM%5))]}
-        data="[${DATA[month]}$(date "+%Y:%T %z]")]"
-        url="${URL[$(($RANDOM%5))]}HTTP/1.1"
+        url="/$(gen_url $(($RANDOM%5)))HTTP/1.1"
         agent=${AGENT[$(($RANDOM%9))]}
         echo "$ip - - $data \"$method $url\" $code \"$agent\"" >> $file_name
     done
-    DATA_HIS[$count]=month
+    DATA_HIS[$count]=$data
     count=$((count+1))
 done
